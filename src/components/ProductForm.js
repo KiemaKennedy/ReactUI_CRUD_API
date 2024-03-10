@@ -1,3 +1,4 @@
+// ProductForm.js
 import React from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
@@ -20,7 +21,7 @@ const ProductForm = ({ onSubmit }) => {
         price: Yup.number().required('Price is required')
       })}
       onSubmit={(values, { setSubmitting }) => {
-        onSubmit(values);
+        onSubmit(values); // Submit the form values to the parent component
         setSubmitting(false);
       }}
     >

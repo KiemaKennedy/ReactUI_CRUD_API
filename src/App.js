@@ -1,6 +1,7 @@
 // App.js
 import React, { useState } from 'react';
 import QueryComponent from './components/QueryWindow';
+import AddProduct from './components/AddProduct';
 
 function App() {
   const [searchResult, setSearchResult] = useState(null);
@@ -22,7 +23,13 @@ function App() {
           ))}
         </ul>
       )}
+
+      <div>
+        <AddProduct />
+      </div>
     </div>
+
+    
   );
 }
 

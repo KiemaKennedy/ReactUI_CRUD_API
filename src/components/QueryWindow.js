@@ -21,6 +21,9 @@ function QueryComponent({ onSearch }) {
   const [queryValue, setQueryValue] = useState('');
   const [loading, setLoading] = useState(false);
   const [searchResult, setSearchResult] = useState(null);
+  const [editingRecordId, setEditingRecordId] = useState(null);
+  const [formData, setFormData] = useState({});
+  const [deleteSuccessMessage, setDeleteSuccessMessage] = useState('');
 
   useEffect(() => {
     // Fetch fields for the selected dataset when selectedOption changes
@@ -80,12 +83,75 @@ function QueryComponent({ onSearch }) {
     }
   };
 
+  // Inside your QueryComponent function
+const handleDelete = async (record) => {
+  try {
+    const { [`${selectedOption}ID`]: id } = record;
+    const response = await fetch(`http://localhost:5000/${selectedOption}/${id}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) {
+      throw new Error('Failed to delete record');
+    }
+    // Filter out the deleted record from the search result
+    setSearchResult((prevSearchResult) =>
+      prevSearchResult.filter((rec) => rec[`${selectedOption}ID`] !== id)
+    );
+     // Set delete success message
+    setDeleteSuccessMessage(`${selectedOption} deleted successfully`);
+  } catch (error) {
+    console.error('Error deleting record:', error);
+  }
+};
+
+
+
+  const handleUpdate = (record) => {
+    setEditingRecordId(record[`${selectedOption}ID`]);
+    setFormData(record);
+  };
+
+  const handleInputChange = (field, value) => {
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      [field]: value,
+    }));
+  };
+
+  const handleSubmit = async () => {
+    try {
+      const response = await fetch(`http://localhost:5000/${selectedOption}/${editingRecordId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+      if (!response.ok) {
+        throw new Error('Failed to update record');
+      }
+      // Handle success response
+      const updatedData = await response.json();
+      setSearchResult((prevSearchResult) =>
+        prevSearchResult.map((record) =>
+          record[`${selectedOption}ID`] === updatedData[`${selectedOption}ID`] ? updatedData : record
+        )
+      );
+      setEditingRecordId(null); // Reset editing state
+      setFormData({}); // Reset form data
+    } catch (error) {
+      console.error('Error updating record:', error);
+    }
+  };
+
   const renderSearchResult = () => {
     if (!searchResult || searchResult.length === 0) return null;
 
     return (
       <div>
         <h2>Search Results</h2>
+        {deleteSuccessMessage && <p>{deleteSuccessMessage}</p>}
+
         <TableContainer component={Paper}>
           <Table>
             <TableHead>
@@ -93,14 +159,32 @@ function QueryComponent({ onSearch }) {
                 {Object.keys(searchResult[0]).map((key) => (
                   <TableCell key={key}>{key}</TableCell>
                 ))}
+                <TableCell>Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {searchResult.map((record, index) => (
                 <TableRow key={index}>
-                  {Object.values(record).map((value, index) => (
-                    <TableCell key={index}>{typeof value === 'object' ? JSON.stringify(value) : value}</TableCell>
+                  {Object.entries(record).map(([field, value]) => (
+                    <TableCell key={field}>
+                      {editingRecordId === record[`${selectedOption}ID`] ? (
+                        <Input
+                          value={formData[field] || ''}
+                          onChange={(e) => handleInputChange(field, e.target.value)}
+                        />
+                      ) : (
+                        typeof value === 'object' ? JSON.stringify(value) : value
+                      )}
+                    </TableCell>
                   ))}
+                  <TableCell>
+                    {editingRecordId === record[`${selectedOption}ID`] ? (
+                      <Button onClick={handleSubmit}>Submit</Button>
+                    ) : (
+                      <><Button onClick={() => handleUpdate(record)}>Edit</Button>
+                      <Button onClick={() => handleDelete(record)}>Delete</Button></>
+                    )}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -125,7 +209,9 @@ function QueryComponent({ onSearch }) {
           <Select value={selectedField} onChange={(e) => handleFieldChange(e.target.value)}>
             <MenuItem value="">Select Field</MenuItem>
             {searchFields.map((field) => (
-              <MenuItem key={field} value={field}>{field}</MenuItem>
+              <MenuItem key={field} value={field}>
+                {field}
+              </MenuItem>
             ))}
           </Select>
           <Input

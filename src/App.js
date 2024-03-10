@@ -15,14 +15,14 @@ function App() {
       <h1>Data Search</h1>
       <QueryComponent onSearch={handleSearch} />
       <hr />
-      <h2>Search Results</h2>
+      {/* <h2>Search Results</h2>
       {searchResult && (
         <ul>
           {searchResult.map((item, index) => (
             <li key={index}>{JSON.stringify(item)}</li>
           ))}
         </ul>
-      )}
+      )} */}
 
       <div>
         <AddProduct />

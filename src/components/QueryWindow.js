@@ -1,4 +1,3 @@
-// QueryComponent.js
 import React, { useState, useEffect } from 'react';
 
 function QueryComponent({ onSearch }) {
@@ -7,6 +6,7 @@ function QueryComponent({ onSearch }) {
   const [selectedField, setSelectedField] = useState('');
   const [queryValue, setQueryValue] = useState('');
   const [loading, setLoading] = useState(false);
+  const [searchResult, setSearchResult] = useState(null);
 
   useEffect(() => {
     // Fetch fields for the selected dataset when selectedOption changes
@@ -58,12 +58,42 @@ function QueryComponent({ onSearch }) {
       // Parse the response JSON
       const data = await response.json();
       // Update the search result state with the retrieved object
-      onSearch(data);
+      setSearchResult(data);
+      onSearch(data); // Notify parent component about the search result
     } catch (error) {
       console.error('Error fetching search results:', error);
       onSearch(null);
     }
   };
+
+  const renderSearchResult = () => {
+    if (!searchResult || searchResult.length === 0) return null;
+    
+    return (
+      <div>
+        <h2>Search Results</h2>
+        <table>
+          <thead>
+            <tr>
+              {Object.keys(searchResult[0]).map((key) => (
+                <th key={key}>{key}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {searchResult.map((record, index) => (
+              <tr key={index}>
+                {Object.values(record).map((value, index) => (
+                  <td key={index}>{typeof value === 'object' ? JSON.stringify(value) : value}</td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  };
+  
 
   return (
     <div>
@@ -92,6 +122,7 @@ function QueryComponent({ onSearch }) {
           <button onClick={handleSearch}>Search</button>
         </div>
       )}
+      {renderSearchResult()}
     </div>
   );
 }

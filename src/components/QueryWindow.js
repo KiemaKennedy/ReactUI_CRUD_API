@@ -1,4 +1,18 @@
 import React, { useState, useEffect } from 'react';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Select,
+  MenuItem,
+  Input,
+  Button,
+  CircularProgress,
+} from '@mui/material';
 
 function QueryComponent({ onSearch }) {
   const [selectedOption, setSelectedOption] = useState('');
@@ -68,58 +82,59 @@ function QueryComponent({ onSearch }) {
 
   const renderSearchResult = () => {
     if (!searchResult || searchResult.length === 0) return null;
-    
+
     return (
       <div>
         <h2>Search Results</h2>
-        <table>
-          <thead>
-            <tr>
-              {Object.keys(searchResult[0]).map((key) => (
-                <th key={key}>{key}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {searchResult.map((record, index) => (
-              <tr key={index}>
-                {Object.values(record).map((value, index) => (
-                  <td key={index}>{typeof value === 'object' ? JSON.stringify(value) : value}</td>
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                {Object.keys(searchResult[0]).map((key) => (
+                  <TableCell key={key}>{key}</TableCell>
                 ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {searchResult.map((record, index) => (
+                <TableRow key={index}>
+                  {Object.values(record).map((value, index) => (
+                    <TableCell key={index}>{typeof value === 'object' ? JSON.stringify(value) : value}</TableCell>
+                  ))}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
       </div>
     );
   };
-  
 
   return (
     <div>
-      <select value={selectedOption} onChange={(e) => handleOptionChange(e.target.value)}>
-        <option value="">Select Option</option>
-        <option value="product">Products</option>
-        <option value="supplier">Supplier</option>
-        <option value="category">Categories</option>
+      <Select value={selectedOption} onChange={(e) => handleOptionChange(e.target.value)}>
+        <MenuItem value="">Select Option</MenuItem>
+        <MenuItem value="product">Products</MenuItem>
+        <MenuItem value="supplier">Supplier</MenuItem>
+        <MenuItem value="category">Categories</MenuItem>
         {/* Add more options for other datasets */}
-      </select>
-      {loading && <p>Loading...</p>}
+      </Select>
+      {loading && <CircularProgress />}
       {selectedOption && !loading && searchFields.length > 0 && (
         <div>
-          <select value={selectedField} onChange={(e) => handleFieldChange(e.target.value)}>
-            <option value="">Select Field</option>
+          <Select value={selectedField} onChange={(e) => handleFieldChange(e.target.value)}>
+            <MenuItem value="">Select Field</MenuItem>
             {searchFields.map((field) => (
-              <option key={field} value={field}>{field}</option>
+              <MenuItem key={field} value={field}>{field}</MenuItem>
             ))}
-          </select>
-          <input
+          </Select>
+          <Input
             type="text"
             value={queryValue}
             onChange={(e) => handleQueryValueChange(e.target.value)}
             placeholder="Enter search value"
           />
-          <button onClick={handleSearch}>Search</button>
+          <Button onClick={handleSearch}>Search</Button>
         </div>
       )}
       {renderSearchResult()}

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Typography, Button, Paper, Box } from '@mui/material';
 import ProductForm from './ProductForm';
 
 const AddProduct = () => {
@@ -37,25 +38,29 @@ const AddProduct = () => {
   };
 
   return (
-    <div>
-      <h2>Add Product</h2>
-      {successMessage && <p>{successMessage}</p>}
+    <Box p={3}>
+      <Typography variant="h4" gutterBottom>
+        Add Product
+      </Typography>
+      {successMessage && <Typography variant="body1" color="success">{successMessage}</Typography>}
       {addedProduct && (
-        <div>
-          <h3>Added Product</h3>
-          <p>Product ID: {addedProduct.productID}</p>
-          <p>Product Name: {addedProduct.productName}</p>
-          <p>Supplier ID: {addedProduct.supplierID}</p>
-          <p>Category ID: {addedProduct.categoryID}</p>
-          <p>Unit: {addedProduct.unit}</p>
-          <p>Price: {addedProduct.price}</p>
-        </div>
+        <Paper elevation={3} style={{ padding: '20px', marginTop: '20px' }}>
+          <Typography variant="h6">Added Product</Typography>
+          <Typography variant="body1">Product ID: {addedProduct.productID}</Typography>
+          <Typography variant="body1">Product Name: {addedProduct.productName}</Typography>
+          <Typography variant="body1">Supplier ID: {addedProduct.supplierID}</Typography>
+          <Typography variant="body1">Category ID: {addedProduct.categoryID}</Typography>
+          <Typography variant="body1">Unit: {addedProduct.unit}</Typography>
+          <Typography variant="body1">Price: {addedProduct.price}</Typography>
+        </Paper>
       )}
       {showForm && <ProductForm onSubmit={handleSubmit} />}
       {addedProduct && (
-        <button onClick={handleResetForm}>Add Another Product</button>
+        <Button variant="contained" color="primary" onClick={handleResetForm} style={{ marginTop: '20px' }}>
+          Add Another Product
+        </Button>
       )}
-    </div>
+    </Box>
   );
 };
 
